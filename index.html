@@ -2,22 +2,20 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
-        // FIX: Restored exact working API Key with correct casing
         const firebaseConfig = {
             apiKey: "AIzaSyBs34g499bwsc0EM8JdtjVS34CtcnUP0oo",
             authDomain: "jarvis-web-f8e57.firebaseapp.com",
-            projectId: "jarvis-web-f8e57",
-            storageBucket: "jarvis-web-f8e57.firebasestorage.app",
-            messagingSenderId: "967294449565",
-            appId: "1:967294449565:web:bb29157f96d296941fe174",
-            measurementId: "G-49D9H775EL"
+             projectId: "jarvis-web-f8e57",
+             storageBucket: "jarvis-web-f8e57.firebasestorage.app",
+             messagingSenderId: "967294449565",
+             appId: "1:967294449565:web:bb29157f96d296941fe174",
+             measurementId: "G-49D9H775EL"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // UI Selectors
         const menuBtn = document.getElementById('menu-btn');
         const sidebar = document.getElementById('sidebar-panel');
         const backdrop = document.getElementById('backdrop');
@@ -31,7 +29,6 @@
         const footerStatusText = document.getElementById('footer-status-text');
         const historyBox = document.getElementById('history-box');
 
-        // Sidebar Actions
         function toggleSidebar() {
             sidebar.classList.toggle('open');
             backdrop.classList.toggle('active');
@@ -43,75 +40,57 @@
             settingsPanel.classList.toggle('active');
         };
 
-        // NEW: Simple response engine so Jarvis actually answers commands
         function jarvisRespond(userCommand) {
             setTimeout(() => {
                 const jarvisEntry = document.createElement('div');
                 jarvisEntry.className = 'terminal-log';
-                jarvisEntry.style.borderLeft = "3px solid #64ffda"; // Distinct color for Jarvis response
+                jarvisEntry.style.borderLeft = "3px solid #64ffda"; 
                 
-                // Basic responses to commands
                 const cmd = userCommand.toLowerCase();
-                if (cmd.includes('hello') || cmd.includes('hi') || cmd.includes('hyy')) {
-                    jarvisEntry.innerText = "🤖 Jarvis: Mainframe online. Hello, user. Systems are running optimally.";
+                if (cmd.includes('hello') || cmd.includes('hi')) {
+                    jarvisEntry.innerText = "🤖 Jarvis: Mainframe online. Hello, user.";
                 } else if (cmd.includes('status')) {
-                    jarvisEntry.innerText = "🤖 Jarvis: All core network clusters are fully operational. Core response time is 14ms.";
-                } else if (cmd.includes('clear')) {
-                    workspaceView.innerHTML = '<div class="terminal-log">⚡ Terminal logs cleared. Awaiting instructions...</div>';
-                    footerStatusText.innerText = "Upload instructions to mainframe...";
-                    return;
+                    jarvisEntry.innerText = "🤖 Jarvis: Core configurations optimal. Latency 14ms.";
                 } else {
-                    jarvisEntry.innerText = `🤖 Jarvis: Command received and processed. Executed system directive: "${userCommand}"`;
+                    jarvisEntry.innerText = `🤖 Jarvis: Command processed. Executed directive: "${userCommand}"`;
                 }
 
                 workspaceView.appendChild(jarvisEntry);
                 workspaceView.scrollTop = workspaceView.scrollHeight;
                 footerStatusText.innerText = "Mainframe standing by...";
-            }, 1000); // 1 second artificial thinking delay
+            }, 800);
         }
 
-        // Complete Instruction Submission Flow
         function processInstruction() {
             const commandText = instructionInput.value.trim();
             if (commandText === "") return;
 
-            // 1. Create entry log in main window
             const logEntry = document.createElement('div');
             logEntry.className = 'terminal-log';
             logEntry.innerText = `Uploaded Command: ${commandText}`;
             workspaceView.appendChild(logEntry);
             workspaceView.scrollTop = workspaceView.scrollHeight;
 
-            // 2. Append directly to sidebar history index
             const historyItem = document.createElement('div');
             historyItem.className = 'history-item';
             historyItem.innerText = commandText;
             historyBox.prepend(historyItem);
 
-            // 3. Update active layout footer text instantly
             footerStatusText.innerText = `Executing: ${commandText}...`;
-            
-            // Clear prompt input line
             instructionInput.value = "";
-
-            // 4. Trigger Jarvis Response Engine
             jarvisRespond(commandText);
         }
 
-        // Trigger input listeners
         sendInstructionBtn.onclick = processInstruction;
         instructionInput.onkeydown = (e) => {
             if (e.key === 'Enter') processInstruction();
         };
 
-        // Track live login authentication changes
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userStatusLabel.innerHTML = `🟢 Connected:<br><strong>${user.displayName || 'Agent'}</strong>`;
                 loginActionBtn.innerText = "Disconnect Core";
                 footerStatusText.innerText = `Identity secure: Verified as ${user.displayName || 'Agent'}`;
-                
-                // Close structural drawer panel smoothly after completion hook
                 setTimeout(() => {
                     sidebar.classList.remove('open');
                     backdrop.classList.remove('active');
@@ -124,7 +103,6 @@
             }
         });
 
-        // Trigger Google Login Popup Action Loop
         loginActionBtn.onclick = () => {
             if (auth.currentUser) {
                 signOut(auth).catch(err => console.error(err));
